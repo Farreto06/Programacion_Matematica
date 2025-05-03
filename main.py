@@ -36,8 +36,8 @@ def solve_assignment_problem(cost_matrix, n, m):
 
     Returns:
         tuple: (dict, float) - Un diccionario con la asignación de tareas por programador
-                 y el costo total mínimo.
-                 Ejemplo: {0: [1, 3], 1: [0, 2], ...}, 150.0
+                y el costo total mínimo.
+                Ejemplo: {0: [1, 3], 1: [0, 2], ...}, 150.0
     """
     if n <= 0 or m <= 0:
         print("Error: El número de programadores y tareas debe ser positivo.")
@@ -143,8 +143,8 @@ def get_input_from_file(filepath):
                     print(f"Error en la línea {i + 3}: Contiene valores no numéricos.")
                     return None, 0, 0
                 except IndexError:
-                     print(f"Error: Faltan líneas de costos en el archivo. Se esperaban {n} filas después de N y M.")
-                     return None, 0, 0
+                    print(f"Error: Faltan líneas de costos en el archivo. Se esperaban {n} filas después de N y M.")
+                    return None, 0, 0
 
 
             return cost_matrix, n, m
@@ -182,7 +182,7 @@ def main():
     if assignment: # Verificar si la asignación no está vacía (indicador de éxito)
         print("\n--- Asignación Óptima ---")
         if not any(assignment.values()): # Si ninguna tarea fue asignada
-             print("No se pudo realizar ninguna asignación con los datos proporcionados.")
+            print("No se pudo realizar ninguna asignación con los datos proporcionados.")
         else:
             for programmer, tasks in assignment.items():
                 if tasks: # Mostrar solo si el programador tiene tareas asignadas
