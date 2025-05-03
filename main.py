@@ -1,9 +1,31 @@
 import numpy as np
 import sys
+from scipy.optimize import linear_sum_assignment
+
+def solve_assignment_problem_h(cost_matrix):
+    """
+    Implementa el método húngaro para resolver el problema de asignación.
+    Encuentra la asignación óptima minimizando el costo total.
+
+    Args:
+        cost_matrix (np.array): Matriz de costos cuadrada.
+
+    Returns:
+        tuple: (list, float) - Lista de asignaciones [(programador, tarea), ...] y el costo total mínimo.
+    """
+    # Usar la función linear_sum_assignment de SciPy para aplicar el método húngaro
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+
+    # Crear la lista de asignaciones y calcular el costo total
+    assignments = list(zip(row_ind, col_ind))
+    total_cost = cost_matrix[row_ind, col_ind].sum()
+
+    return assignments, total_cost
+
 
 def solve_assignment_problem(cost_matrix, n, m):
     """
-    Asigna tareas a programadores minimizando el costo total.
+    Asigna tareas a programadores minimizando el costo total usando el método húngaro.
     Cada tarea se asigna al programador con el menor costo para esa tarea específica.
     Un programador puede ser asignado a múltiples tareas.
 
@@ -24,43 +46,26 @@ def solve_assignment_problem(cost_matrix, n, m):
         print(f"Error: La dimensión de la matriz de costos debe ser {n}x{m}.")
         return {}, 0.0
 
-    assignment = {} # Diccionario para guardar las tareas asignadas a cada programador
-    task_assignment = [-1] * m # Lista para guardar qué programador hace cada tarea
-    total_cost = 0.0
+    # Si la matriz no es cuadrada, agregar filas o columnas de ceros
+    if n != m:
+        max_dim = max(n, m)
+        padded_matrix = np.zeros((max_dim, max_dim))
+        padded_matrix[:n, :m] = cost_matrix
+    else:
+        padded_matrix = cost_matrix
 
-    for j in range(m): # Iterar sobre cada tarea
-        min_cost_for_task = float('inf')
-        best_programmer_for_task = -1
+    # Resolver el problema de asignación usando el método húngaro
+    assignments, total_cost = solve_assignment_problem_h(padded_matrix)
 
-        for i in range(n): # Encontrar el programador más barato para la tarea j
-            if cost_matrix[i, j] < min_cost_for_task:
-                min_cost_for_task = cost_matrix[i, j]
-                best_programmer_for_task = i
+    # Convertir las asignaciones a un diccionario
+    assignment_dict = {}
+    for programmer, task in assignments:
+        if programmer < n and task < m:  # Ignorar asignaciones ficticias
+            if programmer not in assignment_dict:
+                assignment_dict[programmer] = []
+            assignment_dict[programmer].append(task)
 
-        if best_programmer_for_task != -1:
-            total_cost += min_cost_for_task
-            task_assignment[j] = best_programmer_for_task
-            # Añadir la tarea a la lista del programador asignado
-            if best_programmer_for_task not in assignment:
-                assignment[best_programmer_for_task] = []
-            assignment[best_programmer_for_task].append(j)
-        else:
-            # Esto no debería ocurrir si los costos son finitos
-            print(f"Advertencia: No se pudo asignar la tarea {j}.")
-
-    # Asegurarse de que todas las tareas fueron asignadas
-    if -1 in task_assignment:
-         print("Error: No todas las tareas pudieron ser asignadas.")
-         # Podría retornar un error o manejarlo según se necesite
-         # Por ahora, se retorna la asignación parcial
-         pass
-
-
-    # Formatear la salida para que incluya programadores sin tareas asignadas
-    final_assignment_output = {i: assignment.get(i, []) for i in range(n)}
-
-
-    return final_assignment_output, total_cost
+    return assignment_dict, total_cost
 
 def get_input_from_console():
     """Obtiene los datos de entrada desde la consola."""
